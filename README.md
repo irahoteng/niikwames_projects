@@ -26,5 +26,12 @@ The ESP 8266 PINOUT
 BSEC used SDA,SCL, GND and 3.3V
 Implementing the LED’s 
 Using GPIO’s 13-14
-
+Denoise Filter
+What is image convolution?
+In image processing, convolution is the process of transforming an image by applying a kernel over each pixel and its local neighbors across the entire image. The kernel is a matrix of values whose size and values determine the transformation effect of the convolution process.
+What is noise?
+Noise in an image is the presence of artifacts that do not come  from the original image and as result makes a picture appear grainy
+The  code for denoise was created primarily with the use of a median filter and salt and pepper noise.
+Salt and Pepper noise are based around the grayscale image range:0-255. 0(zero intensity)producing a black color while 255(max intensity) produces a white color
+Thus giving the image, the “salt and pepper” appearance. From there a matrix could be created for salt and pepper noise. One matrix being closer to white while the other closer to black.
 
