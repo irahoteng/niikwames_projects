@@ -1,0 +1,16 @@
+Matlab File 1
+%Salt Noise
+[8,8,240; 8,8,240; 8,8,240;]
+% Pepper Noise
+[254,254,8;254,254,8;254,8,254;]
+
+Matlab file 2
+X = imread('SnoopOG.jpg');
+Snoop = imnoise(X, 'salt & pepper', 0.1);
+figure;
+imshow(Snoop);
+title('Snoop with the salt and pepper');
+Snoop_filtered = medfilt3(Snoop, [5,5,3]);
+figure;
+imshow(Snoop_filtered);
+title('Filtered Image of Snoop');
