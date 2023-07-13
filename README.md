@@ -26,7 +26,11 @@ The ESP 8266 PINOUT
 BSEC used SDA,SCL, GND and 3.3V
 Implementing the LED’s 
 Using GPIO’s 13-14
+
+
+
 Denoise Filter
+
 What is image convolution?
 In image processing, convolution is the process of transforming an image by applying a kernel over each pixel and its local neighbors across the entire image. The kernel is a matrix of values whose size and values determine the transformation effect of the convolution process.
 What is noise?
