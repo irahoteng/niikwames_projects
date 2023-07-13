@@ -1,5 +1,7 @@
 # niikwames_projects
 A few projects that I am especially proud of and worked on
+
+
 Summary of the Indoor Air Quality C code 
 Provide user feedback of surrounding indoor air quality using gas sensor
 Used to detect harmful levels of VOCs in an environment 
