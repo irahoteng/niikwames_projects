@@ -1,0 +1,359 @@
+import RPi.GPIO as GPIO
+import pigpio
+import time
+import os
+import sys
+from threading import Thread
+ 
+# Function to move uArm
+def move_uarm_triangle():
+    print("Inside triangle")
+    sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+    from uarm.wrapper import SwiftAPI
+ 
+    """
+    This program demonstrates both moving the arm and moving the stepper motor March 15th 2024
+    """
+ 
+    swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'}, cmd_pend_size=2, callback_thread_pool_size=1)
+    swift.waiting_ready()
+ 
+    device_info = swift.get_device_info()
+    print(device_info)
+    firmware_version = device_info['firmware_version']
+    if firmware_version and not firmware_version.startswith(('0.', '1.', '2.', '3.')):
+        swift.set_speed_factor(0.00005)
+ 
+    speed = 500000
+    swift.reset(speed=speed)
+    time.sleep(3)
+    swift.set_gripper(True)
+    # Your uArm moving code here
+    # Set initial position
+    init_x = 200
+    init_y = 0
+    init_z = 0
+ 
+    a=1
+    b=2
+ 
+    swift.set_position(init_x, init_y, init_z, speed=speed)
+ 
+    triangle_size = 8  # Adjust this value based on your desired triangle size
+ 
+    for i in range(1, triangle_size): 
+        # Draw a line to the right
+        init_x += a*3
+        swift.set_position(x = init_x, z = 0)
+        # Draw a left and line up
+        init_x -= b*3
+        init_y += b*3
+        swift.set_position(x = init_x, y = init_y)
+        #  go down
+        init_y -= b*3
+        swift.set_position(y = init_y)
+        a += 2
+        b += 2
+        # Close the gripper
+    swift.set_gripper(True)    
+    swift.disconnect()
+    print("Finish triangle")
+ 
+def move_uarm_square():
+    print("Inside square")
+    sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+    from uarm.wrapper import SwiftAPI
+ 
+    """
+    This function will draw a square from april 19 2024
+    """
+ 
+    swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'}, cmd_pend_size=2, callback_thread_pool_size=1)
+    swift.waiting_ready()
+ 
+    device_info = swift.get_device_info()
+    print(device_info)
+    firmware_version = device_info['firmware_version']
+    if firmware_version and not firmware_version.startswith(('0.', '1.', '2.', '3.')):
+        swift.set_speed_factor(0.00005)
+    
+    speed = 500000
+    swift.set_gripper(False)
+    # Your uArm moving code here
+    # Set initial position
+    init_x = 200
+    init_y = 0
+    init_z = 0
+ 
+    a=1
+    b=2
+ 
+    swift.set_position(init_x, init_y, init_z, speed=speed)
+ 
+    square_size = 9  # Adjust this value based on your desired square size
+ 
+    for i in range(1, square_size): 
+        # Draw a line to the right
+        init_x += a*3
+        swift.set_position(x = init_x)
+        # Draw a line up
+        init_y += a*3
+        swift.set_position(y = init_y)
+        #  Draw a line to the left
+        init_x -= b*3
+        swift.set_position(x = init_x)
+        #  Draw a line going down
+        init_y -= b*3
+        swift.set_position(y = init_y)
+        a += 2
+        b += 2
+         # Close the gripper
+    swift.set_gripper(True)   
+    swift.disconnect()
+    print("Finish square")
+ 
+ 
+def move_uarm_diamond():
+    print("Inside diamond")
+    sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+    from uarm.wrapper import SwiftAPI
+ 
+    """
+    This function will draw a diamond from april 19 2024
+    """
+ 
+    swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'}, cmd_pend_size=2, callback_thread_pool_size=1)
+    swift.waiting_ready()
+ 
+    device_info = swift.get_device_info()
+    print(device_info)
+    firmware_version = device_info['firmware_version']
+    if firmware_version and not firmware_version.startswith(('0.', '1.', '2.', '3.')):
+        swift.set_speed_factor(0.00005)
+    
+    speed = 500000
+    swift.set_gripper(False)
+    # Your uArm moving code here
+    # Set initial position
+    init_x = 200
+    init_y = 0 # y coordinate =0 meaning the arm is facing straight 12 o clock (- negative number meaning 1,2,3etc o clock positive number is 11,10,9 o clock)
+    init_z = 0
+ 
+    a=1
+    b=2
+ 
+    swift.set_position(init_x, init_y, init_z, speed=speed)
+ 
+    diamond_size = 6  # Adjust this value based on your desired diamond size
+ 
+    for i in range(1, diamond_size): 
+ 
+        # Draw a line to the right
+        init_x += a*3
+        swift.set_position(x = init_x)
+ 
+        # Draw a line doing right and up
+        init_x += a*3
+        init_y += a*3
+        swift.set_position(x = init_x, y = init_y)
+ 
+        #  Draw a line to the left
+        init_x -= b*3
+        swift.set_position(x = init_x)
+ 
+        #  Draw a line going left and down
+        init_x -= b*3
+        init_y -= b*3
+        swift.set_position(x = init_x, y = init_y)
+        a += 2
+        b += 2
+         # Close the gripper
+    swift.set_gripper(True)   
+    swift.disconnect()
+    print("Finish diamond")
+ 
+ 
+#==================================================================
+        
+#==================================================================
+        
+#==================================================================
+        
+# Function to move stepper motor
+def move_stepper():
+    # Define stepper motor connections and steps per revolution:
+    dir_pin = 27
+    step_pin = 17
+    steps_per_revolution = 200
+ 
+    # Setup GPIO
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(dir_pin, GPIO.OUT)
+    GPIO.setup(step_pin, GPIO.OUT)
+ 
+    # Function to step the motor
+    def step_motor(direction, steps, delay):
+        GPIO.output(dir_pin, direction)
+        for _ in range(steps):
+            GPIO.output(step_pin, GPIO.HIGH)
+            time.sleep(delay)
+            GPIO.output(step_pin, GPIO.LOW)
+            time.sleep(delay)
+ 
+    GPIO.output(led_yellow, GPIO.HIGH)
+    GPIO.output(led_green, GPIO.LOW)
+ 
+    # Your stepper motor moving code here
+    print("Inside move motor thread")
+    try: 
+        # Set the spinning direction counterclockwise:
+        step_motor(GPIO.LOW, 80 * steps_per_revolution, 0.00025)
+ 
+        time.sleep(1)
+ 
+    finally:
+        print("Finish move motor thread")
+        # Cleanup GPIO
+        GPIO.cleanup()
+ 
+try:
+    # Connect to pigpiod daemon
+    pi = pigpio.pi("localhost", 8888)
+ 
+    # loop to wait for shape inputs
+    while True:
+        # Set GPIO mode to BCM
+        GPIO.setmode(GPIO.BCM)
+ 
+        # GPIO pins of each button
+        btn_1 = 23
+        btn_2 = 24
+        btn_3 = 25
+        btn_4 = 26 #big red button
+ 
+        # GPIO pins of each LED
+        led_green = 12
+        led_yellow = 16
+ 
+        # Set up input buttons
+        GPIO.setup(btn_1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(btn_2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(btn_3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(btn_4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+ 
+        # Set up output LEDs
+        GPIO.setup(led_green, GPIO.OUT)
+        GPIO.setup(led_yellow, GPIO.OUT)
+ 
+        #turn on green LED here to indicate "Stand-by mode"
+        GPIO.output(led_green, GPIO.HIGH)
+ 
+        # triangle
+        if(GPIO.input(btn_1) == GPIO.LOW):
+            # initialize threads
+            uarm_thread = Thread(target = move_uarm_triangle)
+            stepper_thread = Thread(target = move_stepper)
+ 
+            # Start the threads
+            uarm_thread.start()
+            stepper_thread.start()
+ 
+            # Wait for both threads to finish
+            stepper_thread.join()
+            uarm_thread.join()
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(led_green, GPIO.OUT)
+            GPIO.setup(led_yellow, GPIO.OUT)
+            GPIO.output(led_green, GPIO.LOW)
+            GPIO.output(led_yellow, GPIO.LOW)
+            time.sleep(0.2)
+ 
+        # square
+        elif(GPIO.input(btn_2) == GPIO.LOW):
+            # initialize threads
+            uarm_thread = Thread(target = move_uarm_square)
+            stepper_thread = Thread(target = move_stepper)
+ 
+            # Start the threads
+            uarm_thread.start()
+            stepper_thread.start()
+ 
+            # Wait for both threads to finish
+            stepper_thread.join()
+            uarm_thread.join()
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(led_green, GPIO.OUT)
+            GPIO.setup(led_yellow, GPIO.OUT)
+            GPIO.output(led_green, GPIO.LOW)
+            GPIO.output(led_yellow, GPIO.LOW)
+            time.sleep(0.2)
+ 
+        # diamond
+        elif(GPIO.input(btn_3) == GPIO.LOW):
+            # initialize threads
+            uarm_thread = Thread(target = move_uarm_diamond)
+            stepper_thread = Thread(target = move_stepper)
+ 
+            # Start the threads
+            uarm_thread.start()
+            stepper_thread.start()
+ 
+            # Wait for both threads to finish
+            stepper_thread.join()
+            uarm_thread.join()
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(led_green, GPIO.OUT)
+            GPIO.setup(led_yellow, GPIO.OUT)
+            GPIO.output(led_green, GPIO.LOW)
+            GPIO.output(led_yellow, GPIO.LOW)
+            time.sleep(0.2)
+ 
+        #move motor back by 1cm
+        elif(GPIO.input(btn_4) == GPIO.LOW):
+            dir_pin = 27
+            step_pin = 17
+            steps_per_revolution = 200
+ 
+            # Setup GPIO
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(dir_pin, GPIO.OUT)
+            GPIO.setup(step_pin, GPIO.OUT)
+ 
+            # Function to step the motor
+            def step_motor(direction, steps, delay):
+                GPIO.output(dir_pin, direction)
+                for _ in range(steps):
+                    GPIO.output(step_pin, GPIO.HIGH)
+                    time.sleep(delay)
+                    GPIO.output(step_pin, GPIO.LOW)
+                    time.sleep(delay)
+ 
+            GPIO.output(led_yellow, GPIO.HIGH)
+            GPIO.output(led_green, GPIO.LOW)
+ 
+            # Your stepper motor moving code here
+            print("Moving motor back 1cm")
+            try: 
+                # Set the spinning direction counterclockwise:
+                step_motor(GPIO.HIGH, 40 * steps_per_revolution, 0.0001)
+                #40/8=5 rotations, each rotation is 2mm travel
+ 
+                time.sleep(.1)
+ 
+            finally:
+                GPIO.setmode(GPIO.BCM)
+                GPIO.setup(led_green, GPIO.OUT)
+                GPIO.setup(led_yellow, GPIO.OUT)
+                GPIO.output(led_green, GPIO.HIGH)
+                GPIO.output(led_yellow, GPIO.LOW)
+                print("Finished moving motor 1cm back")
+                # Cleanup GPIO
+                GPIO.cleanup()
+ 
+except KeyboardInterrupt:
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(led_green, GPIO.OUT)
+    GPIO.setup(led_yellow, GPIO.OUT)
+    GPIO.output(led_green, GPIO.LOW)
+    GPIO.output(led_yellow, GPIO.LOW)
+    print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
